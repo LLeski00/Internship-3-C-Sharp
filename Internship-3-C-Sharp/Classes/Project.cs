@@ -14,5 +14,19 @@ namespace ProjectManagerApp.Classes
         private DateTime StartDate { get; set; }
         private DateTime EndDate { get; set; }
         private ProjectStatus Status { get; set; }
+
+        public Project(string name, string description)
+        {
+            Name = name;
+            Description = description;
+            StartDate = DateTime.Now;
+            EndDate = DateTime.MinValue;
+            Status = ProjectStatus.Active;
+        }
+
+        public void SetEndDate (DateTime endDate)
+        {
+            EndDate = endDate;
+        }
     }
 }
