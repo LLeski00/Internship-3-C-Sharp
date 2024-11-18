@@ -16,6 +16,7 @@ namespace ProjectManagerApp.Classes
         public TaskStatus Status { get; set; }
         public int ExpectedDurationInMinutes { get; set; }
         private Project? AssociatedProject { get; set; }
+        public TaskPriority Priority { get; set; }
 
         public Task()
         {
@@ -25,9 +26,10 @@ namespace ProjectManagerApp.Classes
             Status = TaskStatus.Active;
             ExpectedDurationInMinutes = 0;
             AssociatedProject = null;
+            Priority = TaskPriority.Low;
         }
 
-        public Task(string name, string description)
+        public Task(string name, string description, TaskPriority priority)
         {
             Name = name;
             Description = description;
@@ -35,6 +37,7 @@ namespace ProjectManagerApp.Classes
             Status = TaskStatus.Active;
             ExpectedDurationInMinutes = 0;
             AssociatedProject = null;
+            Priority = priority;
         }
         public DateTime GetDeadline() { return Deadline; }
 

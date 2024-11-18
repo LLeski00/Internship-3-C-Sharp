@@ -70,8 +70,9 @@ namespace ProjectManagerApp
                         ProjectManagement(projects, project);
                         break;
                     case 7:
-                        var managedTask = GetTaskFromProject(projects, GetProject(projects));
-                        TaskManagement(managedTask);
+                        var managedProject = GetProject(projects);
+                        var managedTask = GetTaskFromProject(projects, managedProject);
+                        TaskManagement(projects, managedProject, managedTask);
                         break;
                     default:
                         break;
@@ -97,55 +98,55 @@ namespace ProjectManagerApp
                     new Project("Project Titan", "A high-performance cloud infrastructure platform."),
                     new List<Task>()
                     {
-                        new Task("Infrastructure Planning", "Design the architecture and infrastructure requirements for the cloud platform."),
-                        new Task("Cloud Service Integration", "Integrate various cloud services (e.g., AWS, Azure) to enhance scalability and performance."),
-                        new Task("Security Implementation", "Implement robust security protocols to safeguard sensitive data on the platform."),
-                        new Task("Performance Optimization", "Analyze the cloud system’s performance and optimize it for high traffic and load."),
-                        new Task("Client Onboarding", "Develop a user-friendly onboarding system for enterprise clients to easily migrate to the platform.")
+                        new Task("Infrastructure Planning", "Design the architecture and infrastructure requirements for the cloud platform.", TaskPriority.Low),
+                        new Task("Cloud Service Integration", "Integrate various cloud services (e.g., AWS, Azure) to enhance scalability and performance.", TaskPriority.Medium),
+                        new Task("Security Implementation", "Implement robust security protocols to safeguard sensitive data on the platform.", TaskPriority.High),
+                        new Task("Performance Optimization", "Analyze the cloud system’s performance and optimize it for high traffic and load.", TaskPriority.Medium),
+                        new Task("Client Onboarding", "Develop a user-friendly onboarding system for enterprise clients to easily migrate to the platform.", TaskPriority.Low)
                     }
                 },
                 {
                     new Project("Project Orion", "A space exploration program focusing on interplanetary communication."),
                     new List<Task>()
                     {
-                        new Task("Communication Systems Design", "Design the communication systems for interplanetary transmission."),
-                        new Task("Mars Rover Integration", "Develop and integrate communication modules for Mars rover operations."),
-                        new Task("Satellite Deployment", "Deploy satellites to enhance signal strength and data transfer rates."),
-                        new Task("Data Encryption for Space Communication", "Implement high-level encryption protocols to protect data during transmission."),
-                        new Task("Research and Development", "Conduct research on new technologies that can improve communication between Earth and Mars.")
+                        new Task("Communication Systems Design", "Design the communication systems for interplanetary transmission.", TaskPriority.Low),
+                        new Task("Mars Rover Integration", "Develop and integrate communication modules for Mars rover operations.", TaskPriority.High),
+                        new Task("Satellite Deployment", "Deploy satellites to enhance signal strength and data transfer rates.", TaskPriority.Low),
+                        new Task("Data Encryption for Space Communication", "Implement high-level encryption protocols to protect data during transmission.", TaskPriority.Low),
+                        new Task("Research and Development", "Conduct research on new technologies that can improve communication between Earth and Mars.", TaskPriority.Medium)
                     }
                 },
                 {
                     new Project("Project Phoenix", "Overhaul of a legacy software system with modern technologies."),
                     new List<Task>()
                     {
-                        new Task("Code Refactoring", "Refactor the existing codebase to improve maintainability and performance."),
-                        new Task("Database Migration", "Migrate the legacy database to a more efficient and scalable modern database system."),
-                        new Task("User Interface Redesign", "Redesign the UI to enhance user experience and modernize the application."),
-                        new Task("API Integration", "Integrate new external APIs to extend the system’s functionality."),
-                        new Task("Testing & QA", "Conduct rigorous testing and quality assurance to ensure the system is stable and bug-free.")
+                        new Task("Code Refactoring", "Refactor the existing codebase to improve maintainability and performance.", TaskPriority.Medium),
+                        new Task("Database Migration", "Migrate the legacy database to a more efficient and scalable modern database system.", TaskPriority.Medium),
+                        new Task("User Interface Redesign", "Redesign the UI to enhance user experience and modernize the application.", TaskPriority.Medium),
+                        new Task("API Integration", "Integrate new external APIs to extend the system’s functionality.", TaskPriority.High),
+                        new Task("Testing & QA", "Conduct rigorous testing and quality assurance to ensure the system is stable and bug-free.", TaskPriority.Low)
                     }
                 },
                 {
                     new Project("Project Horizon", "Research and development of AI algorithms for self-driving vehicles."),
                     new List<Task>()
                     {
-                        new Task("Sensor Calibration", "Calibrate and test sensors used in self-driving vehicles for optimal performance."),
-                        new Task("Algorithm Development for Object Detection", "Develop machine learning algorithms to detect and identify objects on the road."),
-                        new Task("Vehicle Control System", "Implement and test vehicle control systems for safe and smooth driving behavior."),
-                        new Task("Navigation System Testing", "Test and validate the navigation system’s accuracy in different environments and conditions."),
-                        new Task("Safety Protocols for Autonomous Vehicles", "Develop and integrate safety protocols to prevent accidents and improve decision-making in critical situations.")
+                        new Task("Sensor Calibration", "Calibrate and test sensors used in self-driving vehicles for optimal performance.", TaskPriority.Medium),
+                        new Task("Algorithm Development for Object Detection", "Develop machine learning algorithms to detect and identify objects on the road.", TaskPriority.Medium),
+                        new Task("Vehicle Control System", "Implement and test vehicle control systems for safe and smooth driving behavior.", TaskPriority.Low),
+                        new Task("Navigation System Testing", "Test and validate the navigation system’s accuracy in different environments and conditions.", TaskPriority.Low),
+                        new Task("Safety Protocols for Autonomous Vehicles", "Develop and integrate safety protocols to prevent accidents and improve decision-making in critical situations.", TaskPriority.High)
                     }
                 },
                 {
                     new Project("Project Nova", "A mobile application for personal finance management."),
                     new List<Task>()
                     {
-                        new Task("User Account Creation", "Implement a secure account creation and authentication system for app users."),
-                        new Task("Budgeting Feature Development", "Develop a feature that allows users to create and manage personalized budgets."),
-                        new Task("Spending Tracker", "Implement a system to track users’ spending habits across different categories."),
-                        new Task("Financial Goal Setting", "Create a feature that helps users set and track financial goals (e.g., saving for a car, house)."),
-                        new Task("Notifications and Reminders", "Develop a notification system that reminds users of bill payments, savings goals, and spending limits.")
+                        new Task("User Account Creation", "Implement a secure account creation and authentication system for app users.", TaskPriority.Low),
+                        new Task("Budgeting Feature Development", "Develop a feature that allows users to create and manage personalized budgets.", TaskPriority.Low),
+                        new Task("Spending Tracker", "Implement a system to track users’ spending habits across different categories.", TaskPriority.High),
+                        new Task("Financial Goal Setting", "Create a feature that helps users set and track financial goals (e.g., saving for a car, house).", TaskPriority.Low),
+                        new Task("Notifications and Reminders", "Develop a notification system that reminds users of bill payments, savings goals, and spending limits.", TaskPriority.Medium)
                     }
                 }
             };
@@ -229,6 +230,8 @@ namespace ProjectManagerApp
             Console.WriteLine("4. Add a task within the project");
             Console.WriteLine("5. Delete a task from the project");
             Console.WriteLine("6. Display the total expected time required for all active tasks in the project");
+            Console.WriteLine("7. Display all tasks sorted from the shortest to longest");
+            Console.WriteLine("8. Display all tasks sorted by priority");
             Console.WriteLine("0. Back");
         }
 
@@ -239,7 +242,6 @@ namespace ProjectManagerApp
             Console.WriteLine("2. Edit the status of the task");
             Console.WriteLine("0. Back");
         }
-
 
         static void DisplayProjects(Dictionary<Project, List<Task>> projects)
         {
@@ -272,6 +274,7 @@ namespace ProjectManagerApp
         {
             Console.WriteLine($"\t{task.Name}\n");
             Console.WriteLine($"\t{task.Description}");
+            Console.WriteLine($"\tPriority: {task.Priority}");
             Console.WriteLine($"\tDeadline: {task.GetDeadline()}");
             Console.WriteLine($"\tStatus: {task.Status}");
             Console.WriteLine($"\tExpected duration: {task.ExpectedDurationInMinutes} min\n");
@@ -283,6 +286,7 @@ namespace ProjectManagerApp
             {
                 Console.WriteLine($"{task.Name}\n");
                 Console.WriteLine($"{task.Description}");
+                Console.WriteLine($"Priority: {task.Priority}");
                 Console.WriteLine($"Deadline: {task.GetDeadline()}");
                 Console.WriteLine($"Status: {task.Status}");
                 Console.WriteLine($"Expected duration: {task.ExpectedDurationInMinutes} min");
@@ -496,17 +500,45 @@ namespace ProjectManagerApp
                         Console.ReadLine();
                         break;
                     case 3:
+                        if(project.GetStatus() == ProjectStatus.Done)
+                        {
+                            Console.WriteLine("The project is done!");
+                            Console.ReadLine();
+                            break;
+                        }
                         EditProjectStatus(project);
                         break;
                     case 4:
+                        if (project.GetStatus() == ProjectStatus.Done)
+                        {
+                            Console.WriteLine("The project is done!");
+                            Console.ReadLine();
+                            break;
+                        }
                         AddTaskToProject(projects, project);
                         break;
                     case 5:
+                        if (project.GetStatus() == ProjectStatus.Done)
+                        {
+                            Console.WriteLine("The project is done!");
+                            Console.ReadLine();
+                            break;
+                        }
                         DeleteTaskFromProject(projects, project);
                         break;
                     case 6:
                         ClearConsole();
                         DisplayTotalExpectedTime(projects[project]);
+                        Console.ReadLine();
+                        break;
+                    case 7:
+                        ClearConsole();
+                        DisplayTasks(SortTasksByDuration(projects[project]));
+                        Console.ReadLine();
+                        break;
+                    case 8:
+                        ClearConsole();
+                        DisplayTasks(SortTasksByPriority(projects[project]));
                         Console.ReadLine();
                         break;
                     default:
@@ -516,7 +548,7 @@ namespace ProjectManagerApp
             } while (!exit);
         }
 
-        static void TaskManagement(Task task)
+        static void TaskManagement(Dictionary<Project, List<Task>> projects, Project project, Task task)
         {
             var exit = false;
 
@@ -544,7 +576,14 @@ namespace ProjectManagerApp
                         Console.ReadLine();
                         break;
                     case 2:
+                        if (project.GetStatus() == ProjectStatus.Done)
+                        {
+                            Console.WriteLine("The project is done!");
+                            Console.ReadLine();
+                            break;
+                        }
                         EditTaskStatus(task);
+                        UpdateProjectStatus(projects, project);
                         break;
                     default:
                         break;
@@ -552,7 +591,6 @@ namespace ProjectManagerApp
 
             } while (!exit);
         }
-
 
         static Project GetProject(Dictionary<Project, List<Task>> projects)
         {
@@ -584,6 +622,18 @@ namespace ProjectManagerApp
             } while (true);
 
             return project.Key;
+        }
+
+        static void UpdateProjectStatus(Dictionary<Project, List<Task>> projects, Project project)
+        {
+            foreach (var task in projects[project]) {
+                if (task.Status != TaskStatus.Done)
+                    return;
+            }
+
+            project.SetStatus(ProjectStatus.Done);
+            Console.WriteLine("The project status is updated to done!");
+            Console.ReadLine();
         }
 
         static Task GetTaskFromProject(Dictionary<Project, List<Task>> projects, Project project)
@@ -708,8 +758,40 @@ namespace ProjectManagerApp
                     continue;
                 }
 
+                Console.WriteLine("Enter the priority:");
+                Console.WriteLine("1. Low");
+                Console.WriteLine("2. Medium");
+                Console.WriteLine("3. High");
+                Console.WriteLine("Your choice:");
+                if (!int.TryParse(Console.ReadLine(), out var priorityOption) || priorityOption < 1 || priorityOption > 3)
+                {
+                    Console.WriteLine("Incorrect priority input!");
+                    Console.ReadLine();
+                    continue;
+                }
+
+                var taskPriority = new TaskPriority();
+
+                switch (priorityOption)
+                {
+                    case 1:
+                        taskPriority = TaskPriority.Low;
+                        break;
+                    case 2:
+                        taskPriority = TaskPriority.Medium;
+                        break;
+                    case 3:
+                        taskPriority = TaskPriority.High;
+                        break;
+                    default:
+                        Console.WriteLine("Unfamiliar priority input!");
+                        Console.ReadLine();
+                        break;
+                }
+
                 newTask.Name = taskName;
                 newTask.Description = taskDescription;
+                newTask.Priority = taskPriority;
                 newTask.SetDeadline(taskDeadline);
                 newTask.ExpectedDurationInMinutes = taskExpectedDurationInMinutes;
                 newTask.SetAssociatedProject(project);
@@ -761,6 +843,22 @@ namespace ProjectManagerApp
             } while (true);
         }
 
+        static List<Task> SortTasksByDuration(List<Task> tasks)
+        {
+            var sortedTasks = new List<Task>();
+            sortedTasks = tasks.OrderBy(task => task.ExpectedDurationInMinutes).ToList();
+
+            return sortedTasks;
+        }
+
+        static List<Task> SortTasksByPriority(List<Task> tasks)
+        {
+            var sortedTasks = new List<Task>();
+            sortedTasks = tasks.OrderBy(task => task.Priority).ToList();
+
+            return sortedTasks;
+        }
+
         static void EditTaskStatus(Task task)
         {
             do
@@ -801,7 +899,6 @@ namespace ProjectManagerApp
             Console.WriteLine("Status successfully changed!");
             Console.ReadLine();
         }
-
 
         static bool AreYouSure()
         {
