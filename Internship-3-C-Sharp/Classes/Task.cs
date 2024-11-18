@@ -57,27 +57,5 @@ namespace ProjectManagerApp.Classes
         {
             ExpectedDurationInMinutes = expectedDurationInMinutes;
         }
-
-        public string GetStatus()
-        {
-            var status = "Unknown";
-
-            switch (Status)
-            {
-                case TaskStatus.Active:
-                    status = "Active";
-                    break;
-                case TaskStatus.Postponed:
-                    status = "On hold";
-                    break;
-                case TaskStatus.Done:
-                    status = "Done";
-                    break;
-                default:
-                    break;
-            };
-
-            return status;
-        }
     }
 }
