@@ -38,6 +38,11 @@ namespace ProjectManagerApp.Classes
             EndDate = endDate;
         }
 
+        public void SetStatus(ProjectStatus status)
+        {
+            Status = status;
+        }
+
         public DateTime GetStartDate()
         {
             return StartDate;

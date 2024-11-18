@@ -1,8 +1,10 @@
 ﻿using ProjectManagerApp.Classes;
+using ProjectManagerApp.Enums;
 using System;
 using System.Collections.Generic;
 using System.Reflection.Metadata.Ecma335;
 using Task = ProjectManagerApp.Classes.Task;
+using TaskStatus = ProjectManagerApp.Enums.TaskStatus;
 
 namespace ProjectManagerApp
 {
@@ -15,13 +17,14 @@ namespace ProjectManagerApp
 
             do
             {
-                Console.Clear();
+                ClearConsole();
                 DisplayMainMenu();
                 Console.WriteLine("Your choice: ");
 
                 if (!int.TryParse(Console.ReadLine(), out var option)){
                     Console.WriteLine("Unfamiliar input!");
                     Console.ReadLine();
+                    continue;
                 }
 
                 switch (option)
@@ -30,7 +33,7 @@ namespace ProjectManagerApp
                         shutdown = true;
                         break;
                     case 1:
-                        Console.Clear();
+                        ClearConsole();
                         DisplayProjects(projects);
                         Console.ReadLine();
                         break;
@@ -41,8 +44,25 @@ namespace ProjectManagerApp
                         DeleteProject(projects);
                         break;
                     case 4:
+                        ClearConsole();
+                        var dueTasks = new List<Task>();
+                        var sevenDaysFromNow = DateTime.Now.AddDays(7);
+                        foreach (var project in projects)
+                        {
+                            foreach(var task in project.Value)
+                            {
+                                if (task.GetDeadline() >= DateTime.Now && task.GetDeadline() <= sevenDaysFromNow)
+                                    dueTasks.Add(task);
+                            }
+                        }
+                        DisplayTasks(dueTasks);
+                        Console.ReadLine();
                         break;
                     case 5:
+                        var filteredProjects = FilterProjectsByStatus(projects);
+                        ClearConsole();
+                        DisplayProjects(filteredProjects);
+                        Console.ReadLine();
                         break;
                     case 6:
                         break;
@@ -53,6 +73,16 @@ namespace ProjectManagerApp
                 }
 
             } while (!shutdown);
+        }
+
+        static void ClearConsole()
+        {
+            Console.Clear();
+            for (int i = 0; i < 50; i++)
+            {
+                Console.WriteLine();
+            }
+            Console.SetCursorPosition(0, 0);
         }
 
         static Dictionary<Project, List<Task>> InstantiateProjects(){ 
@@ -155,12 +185,15 @@ namespace ProjectManagerApp
             {
                 var tasks = projects[project.Key];
                 projects.Remove(project.Key);
+                project.Key.SetStatus(new Random().Next(2) == 1 ? ProjectStatus.Active : ProjectStatus.OnHold);
                 foreach (var task in tasks.ToList())
                 {
                     tasks.Remove(task);
                     task.SetAssociatedProject(project.Key);
                     task.SetDeadline(deadlines[deadlineId]);
                     task.SetExpectedDurationInMinutes(durations[deadlineId++]);
+                    if (task.GetDeadline() < DateTime.Now)
+                        task.Status = new Random().Next(2) == 1 ? TaskStatus.Postponed : TaskStatus.Done;
                     tasks.Add(task);
                 }
                 projects.Add(project.Key, tasks);
@@ -191,15 +224,18 @@ namespace ProjectManagerApp
                 Console.WriteLine($"Start date: {project.Key.GetStartDate()}");
                 Console.WriteLine($"Status: {project.Key.GetStatus()}");
                 Console.WriteLine("Tasks: ");
+                DisplayTasks(project.Value);
+            }
+        }
 
-                foreach (var task in project.Value)
-                {
-                    Console.WriteLine($"\t{task.Name}\n");
-                    Console.WriteLine($"\t{task.Description}");
-                    Console.WriteLine($"\tDeadline: {task.GetDeadline()}");
-                    Console.WriteLine($"\tStatus: {task.GetStatus()}");
-                    Console.WriteLine($"\tExpected duration: {task.ExpectedDurationInMinutes} min\n");
-                }
+        static void DisplayTasks(List<Task> tasks) {
+            foreach (var task in tasks)
+            {
+                Console.WriteLine($"\t{task.Name}\n");
+                Console.WriteLine($"\t{task.Description}");
+                Console.WriteLine($"\tDeadline: {task.GetDeadline()}");
+                Console.WriteLine($"\tStatus: {task.GetStatus()}");
+                Console.WriteLine($"\tExpected duration: {task.ExpectedDurationInMinutes} min\n");
             }
         }
 
@@ -210,7 +246,7 @@ namespace ProjectManagerApp
 
             do
             {
-                Console.Clear();
+                ClearConsole();
                 Console.WriteLine("Enter the name of the project: ");
                 name = Console.ReadLine();
 
@@ -248,7 +284,7 @@ namespace ProjectManagerApp
 
             do
             {
-                Console.Clear();
+                ClearConsole();
                 Console.WriteLine("Enter the name of the project you want to delete:");
                 var name = Console.ReadLine();
 
@@ -293,6 +329,60 @@ namespace ProjectManagerApp
                     Console.ReadLine();
                 }
             } while (!projectFound);
+        }
+
+        static Dictionary<Project, List<Task>> FilterProjectsByStatus(Dictionary<Project, List<Task>> projects)
+        {
+            var filteredProjects = new Dictionary<Project, List<Task>>();
+
+            do
+            {
+                ClearConsole();
+                Console.WriteLine("Filter projects with status of:");
+                Console.WriteLine("1. Active");
+                Console.WriteLine("2. On hold");
+                Console.WriteLine("3. Done");
+                Console.WriteLine("Your choice: ");
+                if(!int.TryParse(Console.ReadLine(), out var option))
+                {
+                    Console.WriteLine("Incorrect input!");
+                    Console.ReadLine();
+                    continue;
+                }
+
+                switch (option)
+                {
+                    case 1:
+                        foreach(var project in projects)
+                        {
+                            if (project.Key.GetStatus() == "Active")
+                                filteredProjects[project.Key] = new List<Task>(project.Value);
+                        }
+                        break;
+                    case 2:
+                        foreach (var project in projects)
+                        {
+                            if (project.Key.GetStatus() == "On hold")
+                                filteredProjects[project.Key] = new List<Task>(project.Value);
+                        }
+                        break;
+                    case 3:
+                        foreach (var project in projects)
+                        {
+                            if (project.Key.GetStatus() == "Done")
+                                filteredProjects[project.Key] = new List<Task>(project.Value);
+                        }
+                        break;
+                    default:
+                        Console.WriteLine("Unfamiliar option!");
+                        Console.ReadLine();
+                        continue;
+                }
+
+                break;
+            } while (true);
+
+            return filteredProjects;
         }
     }
 }
