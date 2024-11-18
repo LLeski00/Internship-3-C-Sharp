@@ -9,7 +9,7 @@ namespace ProjectManagerApp.Enums
     public enum TaskStatus
     {
         Active,
-        Done,
-        Postponed
+        Postponed,
+        Done
     }
 }

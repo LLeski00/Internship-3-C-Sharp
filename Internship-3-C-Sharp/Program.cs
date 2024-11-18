@@ -26,10 +26,15 @@ namespace ProjectManagerApp
                 switch (option)
                 {
                     case 0:
+                        shutdown = true;
                         break;
                     case 1:
+                        Console.Clear();
+                        DisplayProjects(projects);
+                        Console.ReadLine();
                         break;
                     case 2:
+                        AddProject(projects);
                         break;
                     case 3:
                         break;
@@ -173,6 +178,65 @@ namespace ProjectManagerApp
             Console.WriteLine("6. Project management");
             Console.WriteLine("7. Task managemen");
             Console.WriteLine("0. Exit the app");
+        }
+
+        static void DisplayProjects(Dictionary<Project, List<Task>> projects)
+        {
+            foreach (var project in projects)
+            {
+                Console.WriteLine($"{project.Key.Name}\n");
+                Console.WriteLine($"{project.Key.Description}");
+                Console.WriteLine($"Start date: {project.Key.GetStartDate()}");
+                Console.WriteLine($"Status: {project.Key.GetStatus()}");
+                Console.WriteLine("Tasks: ");
+
+                foreach (var task in project.Value)
+                {
+                    Console.WriteLine($"\t{task.Name}\n");
+                    Console.WriteLine($"\t{task.Description}");
+                    Console.WriteLine($"\tDeadline: {task.GetDeadline()}");
+                    Console.WriteLine($"\tStatus: {task.GetStatus()}");
+                    Console.WriteLine($"\tExpected duration: {task.ExpectedDurationInMinutes} min\n");
+                }
+            }
+        }
+
+        static void AddProject(Dictionary<Project, List<Task>> projects)
+        {
+            var name = "Unknown";
+            var description = "Unknown";
+
+            do
+            {
+                Console.Clear();
+                Console.WriteLine("Enter the name of the project: ");
+                name = Console.ReadLine();
+
+                if ( name == null  || name == string.Empty)
+                {
+                    Console.WriteLine("Name empty!");
+                    Console.ReadLine();
+                    continue;
+                }
+
+                Console.WriteLine("Enter the projects description: ");
+                description = Console.ReadLine();
+
+                if (description == null  || description == string.Empty)
+                {
+                    Console.WriteLine("Description empty!");
+                    Console.ReadLine();
+                    continue;
+                }
+
+                break;
+            } while (true);
+
+            var newProject = new Project(name, description);
+            projects.Add(newProject, new List<Task>());
+
+            Console.WriteLine("Project successfully added!");
+            Console.ReadLine();
         }
     }
 }

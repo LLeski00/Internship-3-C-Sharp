@@ -28,5 +28,32 @@ namespace ProjectManagerApp.Classes
         {
             EndDate = endDate;
         }
+
+        public DateTime GetStartDate()
+        {
+            return StartDate;
+        }
+
+        public string GetStatus()
+        {
+            var status = "Unknown";
+
+            switch(Status)
+            {
+                case ProjectStatus.Active:
+                    status = "Active";
+                    break;
+                case ProjectStatus.OnHold:
+                    status = "On hold";
+                    break;
+                case ProjectStatus.Done:
+                    status = "Done";
+                    break;
+                default:
+                    break;
+            };
+
+            return status;
+        }
     }
 }

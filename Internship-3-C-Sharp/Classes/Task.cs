@@ -26,6 +26,7 @@ namespace ProjectManagerApp.Classes
             ExpectedDurationInMinutes = 0;
             AssociatedProject = null;
         }
+        public DateTime GetDeadline() { return Deadline; }
 
         public void SetAssociatedProject(Project associatedProject)
         {
@@ -40,6 +41,28 @@ namespace ProjectManagerApp.Classes
         public void SetExpectedDurationInMinutes(int expectedDurationInMinutes)
         {
             ExpectedDurationInMinutes = expectedDurationInMinutes;
+        }
+
+        public string GetStatus()
+        {
+            var status = "Unknown";
+
+            switch (Status)
+            {
+                case TaskStatus.Active:
+                    status = "Active";
+                    break;
+                case TaskStatus.Postponed:
+                    status = "On hold";
+                    break;
+                case TaskStatus.Done:
+                    status = "Done";
+                    break;
+                default:
+                    break;
+            };
+
+            return status;
         }
     }
 }
