@@ -48,6 +48,11 @@ namespace ProjectManagerApp.Classes
             return StartDate;
         }
 
+        public DateTime GetEndDate()
+        {
+            return EndDate;
+        }
+
         public string GetStatus()
         {
             var status = "Unknown";

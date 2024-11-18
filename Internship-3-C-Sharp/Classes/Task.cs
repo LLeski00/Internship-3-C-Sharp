@@ -17,6 +17,16 @@ namespace ProjectManagerApp.Classes
         public int ExpectedDurationInMinutes { get; set; }
         private Project? AssociatedProject { get; set; }
 
+        public Task()
+        {
+            Name = "Unknown";
+            Description = "Unknown";
+            Deadline = DateTime.MinValue;
+            Status = TaskStatus.Active;
+            ExpectedDurationInMinutes = 0;
+            AssociatedProject = null;
+        }
+
         public Task(string name, string description)
         {
             Name = name;
@@ -27,6 +37,11 @@ namespace ProjectManagerApp.Classes
             AssociatedProject = null;
         }
         public DateTime GetDeadline() { return Deadline; }
+
+        public Project? GetAssociatedProject()
+        {
+            return AssociatedProject;
+        }
 
         public void SetAssociatedProject(Project associatedProject)
         {

@@ -3,6 +3,7 @@ using ProjectManagerApp.Enums;
 using System;
 using System.Collections.Generic;
 using System.Reflection.Metadata.Ecma335;
+using System.Threading.Tasks;
 using Task = ProjectManagerApp.Classes.Task;
 using TaskStatus = ProjectManagerApp.Enums.TaskStatus;
 
@@ -47,15 +48,15 @@ namespace ProjectManagerApp
                         ClearConsole();
                         var dueTasks = new List<Task>();
                         var sevenDaysFromNow = DateTime.Now.AddDays(7);
-                        foreach (var project in projects)
+                        foreach (var item in projects)
                         {
-                            foreach(var task in project.Value)
+                            foreach(var task in item.Value)
                             {
                                 if (task.GetDeadline() >= DateTime.Now && task.GetDeadline() <= sevenDaysFromNow)
                                     dueTasks.Add(task);
                             }
                         }
-                        DisplayTasks(dueTasks);
+                        DisplayTasksStandalone(dueTasks);
                         Console.ReadLine();
                         break;
                     case 5:
@@ -65,6 +66,8 @@ namespace ProjectManagerApp
                         Console.ReadLine();
                         break;
                     case 6:
+                        var project = GetProject(projects);
+                        ProjectManagement(projects, project);
                         break;
                     case 7:
                         break;
@@ -204,28 +207,47 @@ namespace ProjectManagerApp
 
         static void DisplayMainMenu()
         {
-            Console.WriteLine("\tPROJECT MANAGER\t");
+            Console.WriteLine("\tPROJECT MANAGER");
             Console.WriteLine("1. Display all projects");
             Console.WriteLine("2. Add a new project");
             Console.WriteLine("3. Delete a project");
             Console.WriteLine("4. Show tasks with upcoming deadlines");
             Console.WriteLine("5. Display projects filtered by status");
             Console.WriteLine("6. Project management");
-            Console.WriteLine("7. Task managemen");
+            Console.WriteLine("7. Task management");
             Console.WriteLine("0. Exit the app");
+        }
+
+        static void DisplayProjectMenu(string name)
+        {
+            Console.WriteLine($"\t{name}");
+            Console.WriteLine("1. Display all tasks within the selected project");
+            Console.WriteLine("2. Display details of the selected project");
+            Console.WriteLine("3. Edit the project's status");
+            Console.WriteLine("4. Add a task within the project");
+            Console.WriteLine("5. Delete a task from the project");
+            Console.WriteLine("6. Display the total expected time required for all active tasks in the project");
+            Console.WriteLine("0. Back");
         }
 
         static void DisplayProjects(Dictionary<Project, List<Task>> projects)
         {
             foreach (var project in projects)
             {
-                Console.WriteLine($"{project.Key.Name}\n");
-                Console.WriteLine($"{project.Key.Description}");
-                Console.WriteLine($"Start date: {project.Key.GetStartDate()}");
-                Console.WriteLine($"Status: {project.Key.GetStatus()}");
+                DisplayProject(project.Key);
                 Console.WriteLine("Tasks: ");
                 DisplayTasks(project.Value);
             }
+        }
+
+        static void DisplayProject(Project project)
+        {
+            Console.WriteLine($"{project.Name}\n");
+            Console.WriteLine($"{project.Description}");
+            Console.WriteLine($"Start date: {project.GetStartDate()}");
+            if (project.GetEndDate() != DateTime.MinValue)
+                Console.WriteLine($"End date: {project.GetStartDate()}");
+            Console.WriteLine($"Status: {project.GetStatus()}");
         }
 
         static void DisplayTasks(List<Task> tasks) {
@@ -237,6 +259,31 @@ namespace ProjectManagerApp
                 Console.WriteLine($"\tStatus: {task.GetStatus()}");
                 Console.WriteLine($"\tExpected duration: {task.ExpectedDurationInMinutes} min\n");
             }
+        }
+
+        static void DisplayTasksStandalone(List<Task> tasks)
+        {
+            foreach (var task in tasks)
+            {
+                Console.WriteLine($"{task.Name}\n");
+                Console.WriteLine($"{task.Description}");
+                Console.WriteLine($"Deadline: {task.GetDeadline()}");
+                Console.WriteLine($"Status: {task.GetStatus()}");
+                Console.WriteLine($"Expected duration: {task.ExpectedDurationInMinutes} min");
+                if (task.GetAssociatedProject() != null)
+                    Console.WriteLine($"Associated project: {task.GetAssociatedProject().Name}");
+                Console.WriteLine("\n");
+            }
+        }
+
+        static void DisplayTotalExpectedTime(List<Task> tasks)
+        {
+            var totalDuration = 0;
+
+            foreach (var task in tasks)
+                totalDuration += task.ExpectedDurationInMinutes;
+
+            Console.WriteLine($"The total expected duration of the tasks is {totalDuration} min.");
         }
 
         static void AddProject(Dictionary<Project, List<Task>> projects)
@@ -253,6 +300,13 @@ namespace ProjectManagerApp
                 if ( name == null  || name == string.Empty)
                 {
                     Console.WriteLine("Name empty!");
+                    Console.ReadLine();
+                    continue;
+                }
+
+                if (!IsNameAvailable(name, projects))
+                {
+                    Console.WriteLine("Name already exists!");
                     Console.ReadLine();
                     continue;
                 }
@@ -305,29 +359,15 @@ namespace ProjectManagerApp
                 }
 
                 Console.WriteLine("Are you sure you want to delete this project? (y/n)");
-                var option = Console.ReadLine();
+                if (!AreYouSure())
+                {
+                    break;
+                }
 
-                if (option == null || option == string.Empty)
-                {
-                    Console.WriteLine("Incorrect input!");
-                    Console.ReadLine();
-                }
-                else if (option.ToLower() == "y")
-                {
-                    projects.Remove(projectToBeDeleted);
-                    Console.WriteLine("Project successfully deleted!");
-                    Console.ReadLine();
-                    break;
-                }
-                else if (option.ToLower() == "n")
-                {
-                    break;
-                }
-                else
-                {
-                    Console.WriteLine("Unfamiliar option!");
-                    Console.ReadLine();
-                }
+                projects.Remove(projectToBeDeleted);
+                Console.WriteLine("Project successfully deleted!");
+                Console.ReadLine();
+                break;
             } while (!projectFound);
         }
 
@@ -383,6 +423,293 @@ namespace ProjectManagerApp
             } while (true);
 
             return filteredProjects;
+        }
+
+        static bool IsNameAvailable(string name, Dictionary<Project, List<Task>> projects)
+        {
+            foreach (var project in projects)
+            {
+                if (project.Key.Name ==  name)
+                    return false;
+            }
+
+            return true;
+        }
+
+        static bool IsNameAvailable(string name, List<Task> tasks)
+        {
+            foreach (var task in tasks)
+            {
+                if (task.Name ==  name)
+                    return false;
+            }
+
+            return true;
+        }
+
+        static void ProjectManagement(Dictionary<Project, List<Task>> projects, Project project)
+        {
+            var exit = false;
+
+            do
+            {
+                ClearConsole();
+                DisplayProjectMenu(project.Name);
+                Console.WriteLine("Your choice: ");
+
+                if (!int.TryParse(Console.ReadLine(), out var option))
+                {
+                    Console.WriteLine("Unfamiliar input!");
+                    Console.ReadLine();
+                    continue;
+                }
+
+                switch (option)
+                {
+                    case 0:
+                        exit = true;
+                        break;
+                    case 1:
+                        ClearConsole();
+                        DisplayTasks(projects[project]);
+                        Console.ReadLine();
+                        break;
+                    case 2:
+                        ClearConsole();
+                        DisplayProject(project);
+                        Console.ReadLine();
+                        break;
+                    case 3:
+                        var projectTasks = projects[project];
+                        projects.Remove(project);
+                        EditProjectStatus(project);
+                        projects.Add(project, projectTasks);
+                        break;
+                    case 4:
+                        AddTaskToProject(projects, project);
+                        break;
+                    case 5:
+                        DeleteTaskFromProject(projects, project);
+                        break;
+                    case 6:
+                        ClearConsole();
+                        DisplayTotalExpectedTime(projects[project]);
+                        Console.ReadLine();
+                        break;
+                    default:
+                        break;
+                }
+
+            } while (!exit);
+        }
+
+        static Project GetProject(Dictionary<Project, List<Task>> projects)
+        {
+            var project = new KeyValuePair<Project, List<Classes.Task>>();
+
+            do
+            {
+                ClearConsole();
+                Console.WriteLine("Enter the name of the project:");
+                var projectName = Console.ReadLine();
+                
+                if (projectName == null || projectName == string.Empty)
+                {
+                    Console.WriteLine("Name is empty!");
+                    Console.ReadLine();
+                    continue;
+                }
+
+                project = projects.FirstOrDefault(item => item.Key.Name == projectName);
+
+                if (project.Key == null)
+                {
+                    Console.WriteLine("Project not found!");
+                    Console.ReadLine();
+                    continue;
+                }
+
+                break;
+            } while (true);
+
+            return project.Key;
+        }
+
+        static void EditProjectStatus(Project project)
+        {
+            do
+            {
+                ClearConsole();
+                Console.WriteLine($"Current project status: {project.GetStatus()}");
+                Console.WriteLine("Status options: ");
+                Console.WriteLine("1. Active");
+                Console.WriteLine("2. On hold");
+                Console.WriteLine("3. Done");
+                Console.WriteLine("New status: ");
+                if(!int.TryParse(Console.ReadLine(), out var option)){
+                    Console.WriteLine("Incorrect input!");
+                    Console.ReadLine();
+                }
+
+                switch (option)
+                {
+                    case 1:
+                        project.SetStatus(ProjectStatus.Active);
+                        break;
+                    case 2:
+                        project.SetStatus(ProjectStatus.OnHold);
+                        break;
+                    case 3:
+                        project.SetStatus(ProjectStatus.Done);
+                        break;
+                    default:
+                        Console.WriteLine("Unfamiliar option!");
+                        Console.ReadLine();
+                        continue;
+                }
+
+                break;
+            } while (true);
+
+            Console.WriteLine("Status successfully changed!");
+            Console.ReadLine();
+        }
+
+        static void AddTaskToProject(Dictionary<Project, List<Task>> projects, Project project)
+        {
+            var newTask = new Task();
+
+            do
+            {
+                ClearConsole();
+                Console.WriteLine("Enter the name of the task:");
+                var taskName = Console.ReadLine();
+
+                if (taskName == null || taskName == string.Empty)
+                {
+                    Console.WriteLine("The name is empty!");
+                    Console.ReadLine();
+                    continue;
+                }
+
+                if(!IsNameAvailable(taskName, projects[project]))
+                {
+                    Console.WriteLine("The name is already taken!");
+                    Console.ReadLine();
+                    continue;
+                }
+
+                Console.WriteLine("Enter the description of the task:");
+                var taskDescription = Console.ReadLine();
+
+                if (taskDescription == null || taskDescription == string.Empty)
+                {
+                    Console.WriteLine("The description is empty!");
+                    Console.ReadLine();
+                    continue;
+                }
+
+                Console.WriteLine("Enter the deadline of the task: (YYYY-MM-DD)");
+                if(!DateTime.TryParse(Console.ReadLine(), out var taskDeadline))
+                {
+                    Console.WriteLine("Incorrect date input!");
+                    Console.ReadLine();
+                    continue;
+                }
+
+                Console.WriteLine("Enter the expected duration in minutes:");
+                if (!int.TryParse(Console.ReadLine(), out var taskExpectedDurationInMinutes))
+                {
+                    Console.WriteLine("Incorrect duration input!");
+                    Console.ReadLine();
+                    continue;
+                }
+
+                newTask.Name = taskName;
+                newTask.Description = taskDescription;
+                newTask.SetDeadline(taskDeadline);
+                newTask.ExpectedDurationInMinutes = taskExpectedDurationInMinutes;
+                newTask.SetAssociatedProject(project);
+
+                break;
+            } while (true);
+
+            projects[project].Add(newTask);
+            Console.WriteLine("Task successfully added!");
+            Console.ReadLine();
+        }
+
+        static void DeleteTaskFromProject(Dictionary<Project, List<Task>> projects, Project project)
+        {
+            do
+            {
+                ClearConsole();
+                Console.WriteLine("Enter the name of the task:");
+                var taskName = Console.ReadLine();
+
+                if (taskName == null || taskName == string.Empty)
+                {
+                    Console.WriteLine("The name is empty!");
+                    Console.ReadLine();
+                    continue;
+                }
+
+                var task = projects[project].FirstOrDefault(item => item.Name == taskName);
+
+                if (task == null)
+                {
+                    Console.WriteLine("Task not found!");
+                    Console.ReadLine();
+                    continue;
+                }
+
+                Console.WriteLine("Are you sure you want to delete this task? (y/n)");
+
+                if (!AreYouSure())
+                {
+                    break;
+                }
+
+                projects[project].Remove(task);
+                Console.WriteLine("The task was successfully deleted!");
+                Console.ReadLine();
+
+                break;
+            } while (true);
+        }
+
+        static bool AreYouSure()
+        {
+            var option = "Unknown";
+            var result = false;
+
+            do
+            {
+                Console.WriteLine("Your choice:");
+                option = Console.ReadLine();
+
+                if ((option.ToLower() != "y" && option.ToLower() != "n") || option == null || option == string.Empty)
+                {
+                    Console.WriteLine("Incorrect input!");
+                    Console.ReadLine();
+                    result = false;
+                    continue;
+                }
+
+                break;
+            } while ((option.ToLower() != "y" && option.ToLower() != "n") || option == null || option == string.Empty);
+
+            
+            if (option.ToLower() == "y")
+            {
+                result = true;
+            }
+            else
+            {
+                result = false;
+            }
+
+            return result;
         }
     }
 }
