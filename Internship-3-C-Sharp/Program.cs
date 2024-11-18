@@ -1,6 +1,7 @@
 ﻿using ProjectManagerApp.Classes;
 using System;
 using System.Collections.Generic;
+using System.Reflection.Metadata.Ecma335;
 using Task = ProjectManagerApp.Classes.Task;
 
 namespace ProjectManagerApp
@@ -37,6 +38,7 @@ namespace ProjectManagerApp
                         AddProject(projects);
                         break;
                     case 3:
+                        DeleteProject(projects);
                         break;
                     case 4:
                         break;
@@ -237,6 +239,60 @@ namespace ProjectManagerApp
 
             Console.WriteLine("Project successfully added!");
             Console.ReadLine();
+        }
+
+        static void DeleteProject(Dictionary<Project, List<Task>> projects)
+        {
+            var projectToBeDeleted = new Project();
+            var projectFound = false;
+
+            do
+            {
+                Console.Clear();
+                Console.WriteLine("Enter the name of the project you want to delete:");
+                var name = Console.ReadLine();
+
+                foreach (var project in projects)
+                {
+                    if (project.Key.Name == name)
+                    {
+                        projectFound = true;
+                        projectToBeDeleted = project.Key;
+                    }
+                }
+
+                if (!projectFound)
+                {
+                    Console.WriteLine("The project does not exist!");
+                    Console.ReadLine();
+                    continue;
+                }
+
+                Console.WriteLine("Are you sure you want to delete this project? (y/n)");
+                var option = Console.ReadLine();
+
+                if (option == null || option == string.Empty)
+                {
+                    Console.WriteLine("Incorrect input!");
+                    Console.ReadLine();
+                }
+                else if (option.ToLower() == "y")
+                {
+                    projects.Remove(projectToBeDeleted);
+                    Console.WriteLine("Project successfully deleted!");
+                    Console.ReadLine();
+                    break;
+                }
+                else if (option.ToLower() == "n")
+                {
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Unfamiliar option!");
+                    Console.ReadLine();
+                }
+            } while (!projectFound);
         }
     }
 }

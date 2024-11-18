@@ -15,6 +15,15 @@ namespace ProjectManagerApp.Classes
         private DateTime EndDate { get; set; }
         private ProjectStatus Status { get; set; }
 
+        public Project()
+        {
+            Name = "Unknown";
+            Description = "Unknown";
+            StartDate = DateTime.Now;
+            EndDate = DateTime.MinValue;
+            Status = ProjectStatus.Active;
+        }
+
         public Project(string name, string description)
         {
             Name = name;
